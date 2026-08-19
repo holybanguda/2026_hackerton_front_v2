@@ -1087,16 +1087,13 @@ codeModal.querySelector('form').addEventListener('submit', async (event) => {
     manualCodeInput.focus();
     return;
   }
-
   try {
     notify('코드를 확인하는 중입니다...');
-
     const response = await fetch("https://2026hackertonback-production.up.railway.app/api/menu/scan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ restaurantUrl: enteredCode })
     });
-
     if (response.ok) {
       const data = await response.json();
       window.cachedRestaurantData = data;
