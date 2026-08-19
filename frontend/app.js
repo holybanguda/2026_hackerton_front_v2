@@ -1020,28 +1020,32 @@ function renderRecommendationResult() {
 // AI 연결 시 이 함수를 호출하면 결과 화면 전체가 응답 데이터로 교체됩니다.
 window.applyAiRecommendationResult = function (aiResult) {
   const previous = currentRecommendation || {};
+  const fallbackPeople = Number(sessionStorage.getItem('peopleCount')) || previous.peopleCount || 2;
+  const safePeopleCount = (aiResult.peopleCount !== null && aiResult.peopleCount !== undefined)
+      ? aiResult.peopleCount
+      : fallbackPeople;
   const restaurantData = window.cachedRestaurantData || [];
   const globalMenuList = Array.isArray(restaurantData) ? restaurantData : (restaurantData.menus || restaurantData.menuList || []);
-
   const menuItems = Array.isArray(aiResult.recommendedMenus)
-      ? aiResult.recommendedMenus.map(menuName => {
-        const matchedMenu = globalMenuList.find(m => (m.menuName || m.name) === menuName);
-        console.log("매칭된 메뉴:", menuName, "결과:", matchedMenu);
+      ? aiResult.recommendedMenus.map(m => {
+        const menuName = typeof m === 'string' ? m : (m.name || m.menuName || '');
+        const matchedMenu = globalMenuList.find(item => (item.menuName || item.name) === menuName);
         return {
           name: menuName,
-          price: matchedMenu ? (Number(matchedMenu.price) || 0) : 0,
-          description: matchedMenu?.description || '',
-          icon: matchedMenu?.icon || '',
-          tags: matchedMenu?.tags || []
+          price: matchedMenu ? (Number(matchedMenu.price) || 0) : (Number(m.price) || 0),
+          description: matchedMenu?.description || m.description || '',
+          icon: matchedMenu?.icon || m.icon || 'assets/utensils.png',
+          tags: matchedMenu?.tags || m.tags || []
         };
       })
-      : [];
+      : (aiResult.menuItems || previous.menuItems || []);
+
 
   analysisTarget = {
     ...previous,
     ...aiResult,
     id: aiResult.id ?? previous.id ?? String(Date.now()),
-    peopleCount: aiResult.peopleCount ?? previous.peopleCount,
+    peopleCount: safePeopleCount ?? previous.peopleCount,
     budget: aiResult.budget ?? previous.budget,
     meetingType: aiResult.meetingType ?? previous.meetingType,
     report: {
