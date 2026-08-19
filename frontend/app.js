@@ -1019,13 +1019,18 @@ function renderRecommendationResult() {
 // AI 연결 시 이 함수를 호출하면 결과 화면 전체가 응답 데이터로 교체됩니다.
 window.applyAiRecommendationResult = function (aiResult) {
   const previous = currentRecommendation || {};
-  const originalMenuItems = previous.menuItems || [];
-  const priceMap = {};
-  originalMenuItems.forEach(item => {
-    if (item.name && item.price) {
-      priceMap[item.name] = item.price;
-    }
-  });
+  const menuItems = Array.isArray(aiResult.recommendedMenus)
+      ? aiResult.recommendedMenus.map(m => {
+        if (typeof m === 'string') return { name: m, price: 0 };
+        return {
+          name: m.name || m.menuName || '',
+          price: Number(m.price) || 0,
+          description: m.description || '',
+          icon: m.icon || 'assets/utensils.png',
+          tags: m.tags || []
+        };
+      })
+      : (aiResult.menuItems || previous.menuItems || []);
 
   analysisTarget = {
     ...previous,
