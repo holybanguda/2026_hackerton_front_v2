@@ -1079,15 +1079,45 @@ replaceControl('.code-row', () => {
   codeModal.hidden = false;
   window.setTimeout(() => manualCodeInput.focus(), 0);
 });
-codeModal.querySelector('form').addEventListener('submit', (event) => {
+codeModal.querySelector('form').addEventListener('submit', async (event) => {
   event.preventDefault();
-  if (!manualCodeInput.value.trim()) {
+  const enteredCode = manualCodeInput.value.trim();
+
+  if (!enteredCode) {
     manualCodeInput.focus();
     return;
   }
-  closeCodeModal();
-  showScreen('member-screen');
+
+  try {
+    notify('코드를 확인하는 중입니다...');
+
+    const response = await fetch("https://2026hackertonback-production.up.railway.app/api/menu/scan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ restaurantUrl: enteredCode })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      window.cachedRestaurantData = data;
+      currentRestaurantUrl = enteredCode;
+      sessionStorage.setItem("restaurantUrl", enteredCode);
+
+      console.log("백엔드 수동 입력 응답 데이터:", data);
+      notify('코드가 확인되었습니다.');
+      closeCodeModal();
+      showScreen("member-screen");
+    } else {
+      notify('유효하지 않은 코드입니다. 다시 확인해주세요.');
+    }
+  } catch (error) {
+    console.error("백엔드 통신 에러:", error);
+    notify('서버 연결 실패. 모의 데이터로 연동을 진행합니다.');
+    closeCodeModal();
+    showScreen("member-screen");
+  }
 });
+
 codeModal.addEventListener('click', (event) => {
   if (event.target === codeModal) closeCodeModal();
 });
