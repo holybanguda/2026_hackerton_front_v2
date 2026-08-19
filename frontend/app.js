@@ -1026,6 +1026,7 @@ window.applyAiRecommendationResult = function (aiResult) {
   const menuItems = Array.isArray(aiResult.recommendedMenus)
       ? aiResult.recommendedMenus.map(menuName => {
         const matchedMenu = globalMenuList.find(m => (m.menuName || m.name) === menuName);
+        console.log("매칭된 메뉴:", menuName, "결과:", matchedMenu);
         return {
           name: menuName,
           price: matchedMenu ? (Number(matchedMenu.price) || 0) : 0,
