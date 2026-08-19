@@ -1052,9 +1052,7 @@ window.applyAiRecommendationResult = function (aiResult) {
       title: 'AI 추천 분석',
       content: aiResult.reason || aiResult.report?.content || ""
     },
-    menuItems: Array.isArray(aiResult.recommendedMenus)
-        ? aiResult.recommendedMenus.map(m => typeof m === 'string' ? { name: m } : m)
-        : (aiResult.menuItems || previous.menuItems || [])
+    menuItems: menuItems
   };
 
   completeAnalysis();
