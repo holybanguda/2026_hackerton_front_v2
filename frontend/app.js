@@ -266,7 +266,7 @@ async function startQrCamera() {
 
   try {
     await html5QrCode.start(
-        { facingMode: "user" },
+        { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         async (decodedText) => {
           stopQrCamera();
